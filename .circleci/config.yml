@@ -67,6 +67,19 @@ jobs:
           command: |
             cd backend
             npm i typescript@3.1.6 run test
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm audit fix --audit-level=critical --prefix frontend
+
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: npm audit fix --audit-level=critical --prefix backend
 workflows:
   default:
     jobs:
