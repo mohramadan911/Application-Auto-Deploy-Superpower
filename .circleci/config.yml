@@ -1,5 +1,18 @@
 version: 2.1
 
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # Your code here
+            exit 1
+
 jobs:
   build-frontend:
     docker:
@@ -80,6 +93,47 @@ jobs:
     steps:
       - checkout
       - run: npm install
+
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+        - checkout
+        - run: yum install -y tar gzip
+        - run:
+            name: Ensure back-end infrastructure exists
+            command: |
+              aws cloudformation deploy \
+                --template-file .circleci/files/backend.yml \
+                --tags project=udapeople \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+                exit 1
+        - run:
+            name: Ensure front-end infrastructure exist
+            command: |
+              aws cloudformation deploy \
+                --template-file .circleci/files/frontend.yml \
+                --tags project=udapeople \
+                --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+                exit 1
+        - run:
+            name: Add back-end ip to ansible inventory
+            command: |
+              aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text >> .circleci/ansible/inventory.txt
+              BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+              echo "BACKEND_IP: ${BACKEND_IP}"
+        - persist_to_workspace:
+            root: ~/
+            paths:
+              - project/.circleci/ansible/inventory.txt
+
+            
+        # Here's where you will add some code to rollback on failure
 workflows:
   default:
     jobs:
@@ -93,3 +147,8 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+        filters:
+           branches:
+            only: [main]
