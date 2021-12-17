@@ -1,0 +1,2 @@
+GitHub URL : https://github.com/mohramadan911/Application-Auto-Deploy-Superpower
+S3 Bucket : http://udapeople-32871a2.s3-website-us-east-1.amazonaws.com
