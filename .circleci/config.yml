@@ -12,6 +12,24 @@ commands:
           when: on_fail
           command: |
             aws --region us-west-1 cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.    
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            SUCCESS=$(curl -H "token: migration_${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
+          when: on_fail
+
+
+
 
 jobs:
   build-frontend:
@@ -181,7 +199,6 @@ jobs:
             npm install --no-fund
             npm audit fix
  
-
             npm run migrations > migration_output.txt
             cat migration_output.txt
             
@@ -200,7 +217,7 @@ jobs:
             echo ${result}
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
-      - revert-migrations
+      - revert-migrations:
 
   deploy-frontend:
     docker:
