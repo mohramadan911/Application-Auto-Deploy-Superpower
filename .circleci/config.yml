@@ -195,42 +195,42 @@ jobs:
               --data ${result} https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}              
               echo ${result}
 
-  deploy-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3
-            sudo apt-get -qq install awscli
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Deploy frontend objects
-          command: |
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
-            API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL: ${API_URL}"
-            export API_URL=${API_URL}
-            echo "${API_URL}" >> "frontend/.env"
-            echo ENVIROMENT=production  >> "frontend/.env" 
-            echo NODE_ENV=production >> "frontend/.env"
-            cat "frontend/.env"
-            cd frontend
-            # export API_URL=http://${BACKEND_IP}:3030
-            echo "API_URL=$API_URL" >> .env
-            echo ${API_URL} 
-            npm install
-            npm run build
-            ls -la 
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            ls -la 
-            aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"/ --recursive   
-      - destroy-environment:
-          WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+    deploy-frontend:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              sudo apt-get -y -qq update
+              sudo apt-get -y -qq install python3
+              sudo apt-get -qq install awscli
+        - attach_workspace:
+            at: ~/
+        - run:
+            name: Deploy frontend objects
+            command: |
+              BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+              API_URL="http://${BACKEND_IP}:3030"
+              echo "API_URL: ${API_URL}"
+              export API_URL=${API_URL}
+              echo "${API_URL}" >> "frontend/.env"
+              echo ENVIROMENT=production  >> "frontend/.env" 
+              echo NODE_ENV=production >> "frontend/.env"
+              cat "frontend/.env"
+              cd frontend
+              # export API_URL=http://${BACKEND_IP}:3030
+              echo "API_URL=$API_URL" >> .env
+              echo ${API_URL} 
+              npm install
+              npm run build
+              ls -la 
+              tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+              ls -la 
+              aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"/ --recursive   
+        - destroy-environment:
+            WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   
     deploy-backend:
       docker:
