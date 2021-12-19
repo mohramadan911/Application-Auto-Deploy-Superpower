@@ -11,7 +11,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws --region us-west-1 cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -209,7 +209,9 @@ jobs:
           name: Send migration results to memstash
           command: |  
             result=0
-            if grep -q "has been executed successfully" migration_output.txt
+            touch migration_output.txt
+            
+            if grep -q "has been executed successfully"  migration_output.txt
             then
               result=1
             fi
