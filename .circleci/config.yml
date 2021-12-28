@@ -11,7 +11,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
+            aws --region us-west-1 cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -181,6 +181,9 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: 
+            - uda-cache-v1--{{ checksum "migration_output.txt" }}
       - attach_workspace:
           at: ~/
 
@@ -204,13 +207,14 @@ jobs:
   
               npm run migrations > migration_output.txt
               cat migration_output.txt
+
             
       - run:
           name: Send migration results to memstash
           command: |  
             result=0
-            touch migration_output.txt
-            
+            --------touch migration_output.txt
+
             if grep -q "has been executed successfully"  migration_output.txt
             then
               result=1
@@ -220,6 +224,12 @@ jobs:
             --request PUT \
             --data ${result} https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}              
             echo ${result}
+
+      - save_cache:
+          paths: 
+            - cache
+          key: uda-cache-v1--{{ checksum "migration_output.txt" }}
+
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
