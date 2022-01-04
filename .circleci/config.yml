@@ -180,7 +180,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: 
-            - uda-cache-v1--{{ checksum "migration_output.txt" }}
+            - uda-cache-v1--{{ checksum "~/project/migration_output.txt" }}
       - attach_workspace:
           at: ~/
 
@@ -202,14 +202,14 @@ jobs:
               npm install --no-fund
               npm audit fix
   
-              npm run migrations > migration_output.txt
-              cat migration_output.txt
+              npm run migrations > ~/project/migration_output.txt
+              
             
 
       - save_cache:
           paths: 
             - cache
-          key: uda-cache-v1--{{ checksum "migration_output.txt" }}
+          key: uda-cache-v1--{{ checksum "~/project/migration_output.txt" }}
 
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
