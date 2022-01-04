@@ -215,7 +215,6 @@ jobs:
           command: |  
             result=0
             if grep -q "has been executed successfully" migration_output.txt
- 
             then
               result=1
             fi
