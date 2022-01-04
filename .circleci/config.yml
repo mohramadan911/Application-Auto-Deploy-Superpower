@@ -178,9 +178,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: 
-            - uda-cache-v1--{{ checksum "~/project/migration_output.txt" }}
+
       - attach_workspace:
           at: ~/
 
@@ -204,7 +202,9 @@ jobs:
   
               npm run migrations > ~/project/migration_output.txt
               
-            
+      - restore_cache:
+          keys: 
+            - uda-cache-v1--{{ checksum "~/project/migration_output.txt" }}      
 
       - save_cache:
           paths: 
@@ -242,7 +242,7 @@ jobs:
             echo NODE_ENV=production >> "frontend/.env"
             cat "frontend/.env"
             cd frontend
-            # export API_URL=http://${BACKEND_IP}:3030
+            export API_URL=http://${BACKEND_IP}:3030
             echo "API_URL=$API_URL" >> .env
             echo ${API_URL} 
             npm install
