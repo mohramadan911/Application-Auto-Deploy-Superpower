@@ -1,6 +1,7 @@
 version: 2.1
 
 commands:
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -204,6 +205,7 @@ jobs:
               npm run migrations > migration_output.txt
               cat migration_output.txt
             
+
       - save_cache:
           paths: 
             - cache
