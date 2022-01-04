@@ -214,9 +214,8 @@ jobs:
           name: Send migration results to memstash
           command: |  
             result=0
-            --------touch migration_output.txt
-
-            if grep -q "has been executed successfully"  migration_output.txt
+            if grep -q "has been executed successfully" migration_output.txt
+ 
             then
               result=1
             fi
