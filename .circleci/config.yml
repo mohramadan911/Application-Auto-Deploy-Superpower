@@ -9,7 +9,7 @@ commands:
         type: string   
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy environment
           when: on_fail
           command: |
             aws --region us-west-1 cloudformation delete-stack --stack-name udapeople-backend-<< parameters.WorkflowID >>
