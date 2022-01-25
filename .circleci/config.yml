@@ -211,7 +211,7 @@ jobs:
       - save_cache:
           paths: 
             - cache
-          key: v1-dependencies-{{ checksum migration_output.txt }}
+          key: v1-dependencies-{{ checksum "migration_output.txt" }}
 
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
@@ -253,7 +253,7 @@ jobs:
             
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             ls -la 
-            aws s3 cp dist s3://udapeople-7970022/ --recursive   
+            aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"/ --recursive   
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
@@ -324,7 +324,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-7970022.s3-website-us-west-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}".s3-website-us-west-1.amazonaws.com"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
@@ -367,10 +367,21 @@ jobs:
             echo OldWorkflowID: "$OldWorkflowID"
             echo STACKS: "$STACKS" 
             aws cloudformation deploy \
-            --template-file /root/project/.circleci/files/cloudfront.yml \
-            --stack-name udapeople-cloudfront \
-            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-            --tags project=udapeople 
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name=udapeople-cloudfront \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}" \
+            --tags project=udapeople
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            fi
+       # Here's where you will add some code to rollback on failure
+      # - destroy-environment:
+      #     WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations  
+ 
  
   cleanup:
       docker:
@@ -437,9 +448,9 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
       # #- cleanup:
       #     #requires: [cloudfront-update]
