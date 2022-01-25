@@ -197,21 +197,21 @@ jobs:
               echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
 
-              npm install --no-fund
-              npm audit fix
+              npm install
+              
   
-              npm run migrations > ~/project/migration_output.txt
+              npm run migrations > migration_output.txt
               
       - restore_cache:
           keys: 
-            - v1-dependencies-{{ checksum "~/project/migration_output.txt" }}
+            - v1-dependencies-{{ checksum "migration_output.txt" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - save_cache:
           paths: 
             - cache
-          key: v1-dependencies-{{ checksum "~/project/migration_output.txt" }}
+          key: v1-dependencies-{{ checksum migration_output.txt }}
 
       - destroy-environment:
           WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
