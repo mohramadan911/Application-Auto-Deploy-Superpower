@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          # Add when this will running
           command: |
               cd ~/project/backend
               npm install
