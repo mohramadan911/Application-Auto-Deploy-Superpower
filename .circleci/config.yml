@@ -254,8 +254,8 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             ls -la 
             aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"/ --recursive   
-      - destroy-environment:
-          WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      #- destroy-environment:
+          #WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
   deploy-backend:
     docker:
@@ -298,8 +298,8 @@ jobs:
             BACKEND_IP=`cat inventory.txt | head -2 | tail -1`
             echo "BACKEND_IP: ${BACKEND_IP}"
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment:
-          WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      #- destroy-environment:
+          #WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
