@@ -205,7 +205,7 @@ jobs:
       - restore_cache:
           keys: 
             - v1-dependencies-{{ checksum "migration_output.txt" }}
-            # fallback to using the latest cache if no exact match is founds
+            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
       - save_cache:
