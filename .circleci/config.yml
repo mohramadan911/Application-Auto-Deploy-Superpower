@@ -305,39 +305,38 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - attach_workspace:
+            at: ~/
       - run:
           name: Install dependencies
           command: |
             apk add --update curl nodejs npm
             pip install awscli
+      - attach_workspace:
+            at: ~/
       - run:
           name: Get the URL of Backend and smoke test.
           command: |
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
-            then
-                return 0
-            else
-                return 1
-            fi
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            echo ${BACKEND_IP}
+            export URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}".s3-website-us-east-1.amazonaws.com"            
-            echo ${URL} 
-            if curl -s ${URL} | grep "Welcome"
+            URL="http://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}".s3-website-us-east-1.amazonaws.com"
+            curl -s $URL | grep "Welcome"
+            if curl -s $URL | grep "Welcome"
             then
-                # Change this to 0 after the job fails
-              return 1
+              return 0
             else
               return 1
             fi
-      - destroy-environment:
-          WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      # - destroy-environment:
+      #     WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations 
 
-      - revert-migrations:
-          WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   cloudfront-update:
     docker:
