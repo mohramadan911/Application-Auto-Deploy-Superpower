@@ -376,42 +376,40 @@ jobs:
       #     WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
       # - revert-migrations  
  
- 
   cleanup:
-      docker:
-        - image: circleci/node:13.8.0
-      steps: 
-        - run:
-            name: Get old stack workflow id
-            command: |
-              export OldWorkflowID=$(aws cloudformation list-exports \
-              --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-              
-              export STACKS=$(aws cloudformation list-stacks \
-              --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE \
-              --no-paginate --output text)
-              echo OldWorkflowID: "$OldWorkflowID"
-              echo STACKS: "$STACKS" 
-        - run:
-            name: Remove old stacks and files
-            command: |
-              if [ ! -z $OldWorkflowID ]
-              then
-                echo "I'm HERE !!!"
-                aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-                aws s3 rb s3://udapeople-${OldWorkflowID} --force
-                aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
-                aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
-                echo "Stacks deleted succesfully"
-              else
-                echo "Fresh New Stacks"
-              fi
-        - destroy-environment:
-            WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
-        - revert-migrations:
-            WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+    docker:
+      - image: circleci/node:13.8.0
+    steps: 
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation list-exports \
+            --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            
+            export STACKS=$(aws cloudformation list-stacks \
+            --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE \
+            --no-paginate --output text)
+            echo OldWorkflowID: "$OldWorkflowID"
+            echo STACKS: "$STACKS" 
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [ ! -z $OldWorkflowID ]
+            then
+              echo "I'm HERE !!!"
+              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              aws s3 rb s3://udapeople-${OldWorkflowID} --force
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              echo "Stacks deleted succesfully"
+            else
+              echo "Fresh New Stacks"
+            fi
+      - destroy-environment:
+          WorkflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations 
 
                     
 workflows:
@@ -446,5 +444,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # #- cleanup:
-      #     #requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
