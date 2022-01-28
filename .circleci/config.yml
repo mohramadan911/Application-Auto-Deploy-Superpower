@@ -383,7 +383,9 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            pip install awscli
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3
+            sudo apt-get -qq install awscli
             export OldWorkflowID=$(aws cloudformation list-exports \
             --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
