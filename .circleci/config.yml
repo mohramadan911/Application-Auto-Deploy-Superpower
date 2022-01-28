@@ -391,8 +391,8 @@ jobs:
             --query "StackSummaries[*].StackName" \
             --stack-status-filter CREATE_COMPLETE \
             --no-paginate --output text)
-            echo OldWorkflowID: "$OldWorkflowID"
-            echo STACKS: "$STACKS" 
+            echo OldWorkflowID: $OldWorkflowID
+            echo STACKS: $STACKS
       - run:
           name: Remove old stacks and files
           command: |
