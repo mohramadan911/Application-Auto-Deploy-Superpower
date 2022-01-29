@@ -1,5 +1,5 @@
-backend URL : http://ec2-54-176-249-165.us-east-1.compute.amazonaws.com:3030/api/status
+backend URL : http://ec2-3-83-144-60.compute-1.amazonaws.com:3030/api/status
 GitHub URL : https://github.com/mohramadan911/Application-Auto-Deploy-Superpower
-S3 Bucket : http://udapeople-7970022.s3-website-us-east-1.amazonaws.com
-Cloud Front: d3lemxzznd3kk1.cloudfront.net
+S3 Bucket : http://udapeople-02eea42.s3.us-east-1.amazonaws.com
+Cloud Front: http://d1lfy0zioz6ynh.cloudfront.net/#/employees
 
