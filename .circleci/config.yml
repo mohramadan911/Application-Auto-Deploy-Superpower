@@ -396,6 +396,7 @@ jobs:
             --no-paginate --output text)
             echo OldWorkflowID: "$OldWorkflowID"
             echo STACKS: "$STACKS"
+            echo "s3://udapeople-${OldWorkflowID}"
       - run:
           name: Remove old stacks and files
           command: |
